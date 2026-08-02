@@ -9,7 +9,6 @@ An ethical, high-confidence OSINT tool designed strictly for querying **publicly
 This application operates under strict ethical rules:
 
 1. **Public Data Only**: Never bypasses login walls, CAPTCHAs, paywalls, or authentication flows.
-
 2. **No Intrusion**: Never attempts brute-forcing, credential stuffing, or password recovery flows.
 3. **No Private Scraping**: Content gated behind authentication is never scraped.
 4. **Rate Limit Respect**: Enforces strict per-host rate limits, exponential backoff on HTTP 429, and respects platform limits.
