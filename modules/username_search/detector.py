@@ -1,7 +1,9 @@
 import re
 import time
 from datetime import datetime, timezone
+from typing import Literal
 
+import httpx
 import structlog
 
 from core.http_client import AsyncHTTPClient
@@ -41,8 +43,8 @@ async def check_platform(client: AsyncHTTPClient, spec: PlatformSpec, username: 
     )
 
 
-def _evaluate(spec: PlatformSpec, response: object) -> tuple[bool | None, str, str | None]:
-    status_code = getattr(response, "status_code", 0)
+def _evaluate(spec: PlatformSpec, response: httpx.Response) -> tuple[bool | None, Literal["high", "low"], str | None]:
+    status_code = response.status_code
 
     if 500 <= status_code < 600:
         return None, "low", f"Target server error (HTTP {status_code})"
@@ -65,7 +67,7 @@ def _evaluate(spec: PlatformSpec, response: object) -> tuple[bool | None, str, s
     if spec.check_method == "text_absence":
         if status_code != spec.expected_status:
             return None, "low", f"Unexpected status {status_code}"
-        text = getattr(response, "text", "")
+        text = response.text
         if (spec.absence_indicator or "") in text:
             return False, "high", None
         return True, "high", None
@@ -73,7 +75,7 @@ def _evaluate(spec: PlatformSpec, response: object) -> tuple[bool | None, str, s
     if spec.check_method == "text_match":
         if status_code != spec.expected_status:
             return None, "low", f"Unexpected status {status_code}"
-        text = getattr(response, "text", "")
+        text = response.text
         if re.search(spec.existence_indicator or "", text):
             return True, "high", None
         return False, "high", None
@@ -88,7 +90,7 @@ def _evaluate(spec: PlatformSpec, response: object) -> tuple[bool | None, str, s
             if value is not None:
                 return True, "high", None
             return False, "high", None
-        except (KeyError, TypeError, ValueError):
+        except (KeyError, TypeError, ValueError, AttributeError):
             return None, "low", f"Field '{spec.json_exists_path}' missing or invalid JSON"
 
     return None, "low", f"Unexpected status {status_code}"

@@ -5,7 +5,7 @@
 [![SQLAlchemy 2.0](https://img.shields.io/badge/SQLAlchemy-2.0-red.svg)](https://www.sqlalchemy.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An ethical, high-confidence, asynchronous OSINT (Open Source Intelligence) tool designed strictly for querying **publicly available digital footprints** across online platforms. 
+An ethical, high-confidence, asynchronous OSINT (Open Source Intelligence) tool designed strictly for querying **publicly available digital footprints** across online platforms.
 
 Built with modern Python (3.11+), **`account-finder-py`** provides dual interfaces—a high-performance **FastAPI REST API** and an interactive **Typer CLI**—backed by an async token-bucket rate limiter, resilient HTTP client (`httpx`), and SQLAlchemy 2.0 async database persistence.
 
@@ -60,7 +60,7 @@ This application strictly enforces ethical OSINT standards:
 
 ## 🏗️ Architecture & Project Structure
 
-```
+```text
 ACCOUNT FINDER/
 ├── api/                        # FastAPI Web Layer
 │   ├── routes/
@@ -148,17 +148,19 @@ All settings can be customized via environment variables or a local `.env` file:
 | `DEFAULT_TIMEOUT_SECONDS` | `8.0` | HTTP request timeout in seconds |
 | `GLOBAL_SCAN_TIMEOUT_SECONDS` | `60.0` | Maximum allowed duration for a complete scan batch |
 | `MAX_CONCURRENT_REQUESTS` | `10` | Default concurrency limit for requests |
-| `USER_AGENT` | `"OSINT-Analyzer/1.0 ..."` | HTTP User-Agent string sent in requests |
+| `USER_AGENT` | `"Mozilla/5.0 ..."` | HTTP User-Agent string sent in requests |
 
 ---
 
 ## 🛠️ Installation & Setup
 
 ### 1. Prerequisites
+
 - **Python 3.11** or higher
 - **Git**
 
 ### 2. Clone the Repository
+
 ```bash
 git clone https://github.com/ankitdubey93152/account-finder-py.git
 cd account-finder-py
@@ -167,25 +169,31 @@ cd account-finder-py
 ### 3. Create and Activate a Virtual Environment
 
 **On Linux/macOS:**
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 **On Windows (PowerShell):**
+
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
 ### 4. Install Dependencies
+
 Install the package in editable mode with development tools:
+
 ```bash
 pip install -e ".[dev]"
 ```
 
 ### 5. Configure Environment Variables
+
 Copy the template configuration file:
+
 ```bash
 cp .env.example .env
 ```
@@ -198,27 +206,32 @@ cp .env.example .env
 
 The Typer CLI offers fast terminal-based footprint lookup.
 
-#### Check Application Version:
+#### Check Application Version
+
 ```bash
 python -m cli.main version
 ```
 
-#### Check System Health:
+#### Check System Health
+
 ```bash
 python -m cli.main health
 ```
 
-#### Run Username Scan (Default Table Output):
+#### Run Username Scan (Default Table Output)
+
 ```bash
 python -m cli.main username torvalds
 ```
 
-#### Export Username Scan as JSON:
+#### Export Username Scan as JSON
+
 ```bash
 python -m cli.main username torvalds --format json
 ```
 
-#### Export Username Scan to CSV File:
+#### Export Username Scan to CSV File
+
 ```bash
 python -m cli.main username torvalds --format csv --output results.csv
 ```
@@ -228,10 +241,13 @@ python -m cli.main username torvalds --format csv --output results.csv
 ### 2. Running the FastAPI Web Server
 
 Start the asynchronous Uvicorn server:
+
 ```bash
 uvicorn api.main:app --reload
 ```
+
 or run `main.py` directly:
+
 ```bash
 python -m api.main
 ```
@@ -240,9 +256,10 @@ Once running, access:
 - **Interactive OpenAPI (Swagger) Documentation**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **Health Endpoint**: [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 
-#### API Endpoint Usage Example (`POST /scan/username`):
+#### API Endpoint Usage Example (`POST /scan/username`)
 
 **cURL Request:**
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/scan/username" \
      -H "Content-Type: application/json" \
@@ -254,10 +271,13 @@ curl -X POST "http://127.0.0.1:8000/scan/username" \
 ### 3. Running the Automated Test Suite
 
 Run unit and integration tests using `pytest`:
+
 ```bash
 pytest
 ```
+
 or via python:
+
 ```bash
 python -m pytest
 ```
@@ -268,28 +288,30 @@ python -m pytest
 
 ### CLI Output Examples
 
-#### 1. Formatted Terminal Table Output (`--format table`):
+#### 1. Formatted Terminal Table Output (`--format table`)
+
 ```text
             Username scan: torvalds            
-+---------------------------------------------+
-| Platform   | Exists | Confidence | Response |
-|------------+--------+------------+----------|
-| GitHub     | yes    | high       | 750 ms   |
-| Reddit     | no     | high       | 375 ms   |
-| GitLab     | yes    | high       | 655 ms   |
-| Docker Hub | yes    | high       | 280 ms   |
-| Keybase    | yes    | high       | 1046 ms  |
-+---------------------------------------------+
++---------------------------------------------------+
+| Platform   | Exists       | Confidence | Response |
+|------------+--------------+------------+----------|
+| GitHub     | yes          | high       | 750 ms   |
+| Reddit     | inconclusive | low        | 375 ms   |
+| GitLab     | yes          | high       | 655 ms   |
+| Docker Hub | yes          | high       | 280 ms   |
+| Keybase    | yes          | high       | 1046 ms  |
++---------------------------------------------------+
 ```
 
-#### 2. Raw JSON Output (`--format json`):
+#### 2. Raw JSON Output (`--format json`)
+
 ```json
 {
   "username": "torvalds",
   "total_platforms": 5,
   "found": 4,
-  "not_found": 1,
-  "errored": 0,
+  "not_found": 0,
+  "errored": 1,
   "duration_ms": 1672,
   "results": [
     {
@@ -310,9 +332,9 @@ python -m pytest
     {
       "platform": "Reddit",
       "url": "https://www.reddit.com/user/torvalds/about.json",
-      "exists": false,
-      "confidence": "high",
-      "error": null,
+      "exists": null,
+      "confidence": "low",
+      "error": "Access blocked / WAF challenge (HTTP 403)",
       "response_time_ms": 375,
       "checked_at": "2026-08-02T04:50:37.724081Z"
     },
@@ -358,8 +380,8 @@ When sending a `POST` request to `/scan/username`:
   "username": "torvalds",
   "total_platforms": 5,
   "found": 4,
-  "not_found": 1,
-  "errored": 0,
+  "not_found": 0,
+  "errored": 1,
   "duration_ms": 1420,
   "results": [
     {
@@ -411,15 +433,16 @@ The repository includes comprehensive unit and integration tests covering the AP
 platform win32 -- Python 3.11.9, pytest-9.1.1
 rootdir: C:\Users\Ankit\Desktop\ACCOUNT FINDER
 plugins: anyio-4.14.2, asyncio-1.4.0, respx-0.23.1
-collected 12 items
+collected 14 items
 
-tests\integration\test_health_api.py .                                   [  8%]
-tests\integration\test_scanner.py .                                      [ 16%]
-tests\unit\test_config.py .                                              [ 25%]
-tests\unit\test_detector.py ......                                       [ 75%]
-tests\unit\test_http_client.py ...                                       [100%]
+tests\integration\test_health_api.py .                                   [  7%]
+tests\integration\test_scanner.py .                                      [ 14%]
+tests\unit\test_config.py .                                              [ 21%]
+tests\unit\test_detector.py ......                                       [ 64%]
+tests\unit\test_http_client.py ...                                       [ 85%]
+tests\unit\test_validation_and_errors.py ..                              [100%]
 
-============================= 12 passed in 6.60s ==============================
+============================= 14 passed in 6.54s ==============================
 ```
 
 ---

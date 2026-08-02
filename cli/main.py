@@ -70,9 +70,19 @@ def username(
     if format == "json":
         content = summary.model_dump_json(indent=2)
     elif format == "csv":
-        rows = [["platform", "url", "exists", "confidence", "response_time_ms", "error"]]
-        rows.extend([[r.platform, r.url, r.exists, r.confidence, r.response_time_ms, r.error] for r in summary.results])
-        content = "\n".join(",".join('"' + ("" if value is None else str(value)).replace('"', '""') + '"' for value in row) for row in rows)
+        rows: list[list[str]] = [["platform", "url", "exists", "confidence", "response_time_ms", "error"]]
+        rows.extend([
+            [
+                r.platform,
+                r.url,
+                "" if r.exists is None else str(r.exists),
+                r.confidence,
+                "" if r.response_time_ms is None else str(r.response_time_ms),
+                "" if r.error is None else r.error,
+            ]
+            for r in summary.results
+        ])
+        content = "\n".join(",".join('"' + value.replace('"', '""') + '"' for value in row) for row in rows)
     else:
         table = Table(title=f"Username scan: {summary.username}")
         table.add_column("Platform")
