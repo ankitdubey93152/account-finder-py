@@ -1,5 +1,7 @@
 from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
 from core.config import settings
 from database.models import Base
 
@@ -17,10 +19,12 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False,
 )
 
+
 async def init_db() -> None:
     """Initialize database tables."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency helper for FastAPI route handlers."""
@@ -31,5 +35,3 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
-        finally:
-            await session.close()

@@ -26,3 +26,8 @@ class ProviderConfigError(OSINTError):
 class UnconfirmedOwnerError(OSINTError):
     """Raised when an email lookup is requested without explicit confirmation of ownership."""
     pass
+
+class ScanTimeoutError(OSINTError):
+    """Raised when a scan operation times out before completing."""
+    pass
+
